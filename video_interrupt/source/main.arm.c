@@ -42,7 +42,9 @@ int main(void){
 
   TextSetCursor(9,10);
   TextPut("HELLO,WORLD!");
-  
+  TextPrintf("\nsize = %d\n",sizeof(IrqHandler));
+  TextPrintf("\nsize = %p\n",&INT_VECTOR);
+
   while(1){
     WaitForVsync();
   }
