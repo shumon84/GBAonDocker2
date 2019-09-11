@@ -1,4 +1,4 @@
-/* main.c */
+/* main.arm.c */
 
 #include "gba.h"
 #include "timer.h"
@@ -13,10 +13,11 @@ void IrqHandler(){
   REG_IME=0;
   u16 flag=REG_IF;
 
-  TextToggle();
+  switch(flag){
+	case IRQ_TIMER0:
+		TextToggleBackGround();
+	}
 
-  /* REG_IF と REG_IME は */
-  /* 再設定する必要がある */
   REG_IF=flag;
   REG_IME=1;
   return;
@@ -42,7 +43,7 @@ int main(void){
 
   TextSetCursor(9,10);
   TextPut("HELLO,WORLD!");
-  
+
   while(1){
     WaitForVsync();
   }
