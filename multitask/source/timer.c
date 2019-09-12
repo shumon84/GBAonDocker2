@@ -1,3 +1,5 @@
+/* timer.c */
+
 #include "gba.h"
 #include "timer.h"
 

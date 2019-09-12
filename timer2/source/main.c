@@ -2,7 +2,6 @@
 
 #include "gba.h"
 #include "timer.h"
-#include "input.h"
 #include "text.h"
 
 void WaitForVsync(){
@@ -21,7 +20,6 @@ void Init(){
 
 void Update(){
   TimerUpdate();
-  InputUpdate();
 
   int tm0=TimerGet(0);
 
