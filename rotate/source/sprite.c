@@ -230,7 +230,7 @@ void SpriteDisableDoubleSize(u32 num){
  */
 void SpriteEnableRotationScaling(u32 num){
 	SP(num)->RotationScaling=1;
-	SpriteRocationScalingInit(num);
+	SpriteRotationScalingInit(num);
 }
 
 /**
@@ -245,7 +245,7 @@ void SpriteDisableRotationScaling(u32 num){
  * @brief 回転格縮を元に戻す
  * @param[in] num オブジェクト番号
  */
-void SpriteRocationScalingInit(u32 num){
+void SpriteRotationScalingInit(u32 num){
 	OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
 	rot->pa=256;
 	rot->pb=0;

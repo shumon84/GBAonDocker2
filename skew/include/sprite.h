@@ -43,6 +43,27 @@ typedef struct SPRITE{
   u16 dummy;                    // 不使用
 } ALIGN(4) Sprite;
 
+typedef struct AFFINE_SPRITE{
+  /* Attribute 0 */
+  u16 Y:8;                      // Y座標
+  u16 RotationScaling:1;        // 回転/拡縮フラグ
+  u16 Disable:1;                // 無効化フラグ
+  u16 Mode:2;                   // オブジェクトモード
+  u16 Mosaic:1;                 // モザイクフラグ
+  u16 ColorMode:1;              // カラーモード
+  u16 Shape:2;                  // オブジェクト形状
+  /* Attribute 1 */
+  u16 X:9;                      // X座標
+  u16 Affine:5;                 // アフィンパラメータ番号
+  u16 Size:2;                   // オブジェクトサイズ
+  /* Attribute 2 */
+  u16 Character:10;             // キャラクタ番号
+  u16 Priority:2;               // 表示優先度
+  u16 Palette:4;                // パレット番号
+  /* Attribute 3 */
+  u16 dummy;                    // 不使用
+} ALIGN(4) AffineSprite;
+
 void SpriteInit();
 void SpriteSetCoordinate(u32 num,u32 x,u32 y);
 void SpriteSetShape(u32 num,enum SPRITE_SHAPES shape);
@@ -63,8 +84,16 @@ void SpriteEnableDoubleSize(u32 num);
 void SpriteDisableDoubleSize(u32 num);
 void SpriteEnableRotationScaling(u32 num);
 void SpriteDisableRotationScaling(u32 num);
-void SpriteRocationScalingInit(u32 num);
+void SpriteRotationScalingInit(u32 num);
 void SpriteRotationScaling(u32 num,s16 xScale,s16 yScale,u16 angle);
 void SpriteRotation(u32 num,u16 angle);
 void SpriteScaling(u32 num,s16 xScale,s16 yScale);
+void SpriteXSkew(u32 num,u16 angle);
+void SpriteYSkew(u32 num,u16 angle);
+void AffineRotationScalingInit(u32 affineNum);
+void AffineRotationScaling(u32 affineNum,s16 xScale,s16 yScale,u16 angle);
+void AffineRotation(u32 affineNum,u16 angle);
+void AffineScaling(u32 affineNum,s16 xScale,s16 yScale);
+void AffineXSkew(u32 affineNum,u16 angle);
+void AffineYSkew(u32 affineNum,u16 angle);
 #endif
