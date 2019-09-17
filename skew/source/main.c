@@ -30,71 +30,66 @@ void Init(){
   SpriteInit();
   SpriteSetUp(0,0,Sprite_64x64,(240-128)/2,(160-128)/2);
   SpriteEnableDoubleSize(0);
-  SpriteEnableRotationScaling(0);
+  SpriteEnableRotationScaling(0,0);
 }
 
-/* 回転拡縮モード */
-/* 方向キーで拡縮 */
-/* LRで回転       */
-void rotationScalingMode(){
-	if(InputIsKeyPressed(KEY_LEFT)){
-		SpriteScaling(0,110,100);
-	}
-	if(InputIsKeyPressed(KEY_RIGHT)){
-		SpriteScaling(0,90,100);
-	}
-	if(InputIsKeyPressed(KEY_UP)){
-		SpriteScaling(0,100,110);
-	}
-	if(InputIsKeyPressed(KEY_DOWN)){
-		SpriteScaling(0,100,90);
-	}
-	if(InputIsKeyPressed(KEY_L)){
-		SpriteRotation(0,10);
-	}
-	if(InputIsKeyPressed(KEY_R)){
-		SpriteRotation(0,-10);
-	}
+u32 GetTan(u16 angle){
+  ObjAffineSource src={
+		       256,
+		       256,
+		       angle*180};
+  ObjAffineDest dst={};
+  ObjAffineSet(&src,&dst,1,2);
+  u32 tan=Div(dst.pb<<8,dst.pa);
+  return tan;
 }
 
-/* 剪断変形モード */
-/* 方向キーで剪断 */
-void skiewMode(){
-	if(InputIsKeyPressed(KEY_LEFT)){
-		SpriteXSkew(0,10);
-	}
-	if(InputIsKeyPressed(KEY_RIGHT)){
-		SpriteXSkew(0,-10);
-	}
-	if(InputIsKeyPressed(KEY_UP)){
-		SpriteYSkew(0,10);
-	}
-	if(InputIsKeyPressed(KEY_DOWN)){
-		SpriteYSkew(0,-10);
-	}
+void XSkew(u32 num,u16 angle){
+  u32 tan=GetTan(angle);
+  AP(num)->pa=256;
+  AP(num)->pb=tan;
+  AP(num)->pc=0;
+  AP(num)->pd=256;
 }
 
-u16 mode=0;
+void YSkew(u32 num,u16 angle){
+  u32 tan=GetTan(angle);
+  AP(num)->pa=256;
+  AP(num)->pb=0;
+  AP(num)->pc=tan;
+  AP(num)->pd=256;
+}
+
+u16 x=0;
+u16 y=0;
 
 void Update(){
-	InputUpdate();
-	TextSetCursor(0,0);
-	/* Aボタンで変形をリセット */
-	if(InputIsKeyPressed(KEY_A)){
-		SpriteRotationScalingInit(0);
-	}
-	/* Bボタンでモード切り替え */
-	if(InputIsKeyPressed(KEY_B)){
-		mode^=1;
-	}
-	/* 各モードの処理を実行 */
-	if(mode){
-		TextPut("ROTATION SCALING MODE");
-		rotationScalingMode();
-	}else{
-		TextPut("SKIEW MODE           ");
-		skiewMode();
-	}
+  InputUpdate();
+  TextSetCursor(0,0);
+  TextPrintf("X=%5d\n"
+	     "Y=%5d\n",x,y);
+  
+  /* Aボタンで変形をリセット */
+  if(InputIsKeyPressed(KEY_A)){
+    SpriteRotationScalingInit(0);
+  }
+  /* 十字キーで剪断 */
+  if(InputIsKeyPressed(KEY_LEFT)){
+    x+=5;
+    XSkew(0,x);
+  }
+  if(InputIsKeyPressed(KEY_RIGHT)){
+    x-=5;
+    XSkew(0,x);
+  }
+  if(InputIsKeyPressed(KEY_UP)){
+    y+=5;
+    YSkew(0,y);
+  }
+  if(InputIsKeyPressed(KEY_DOWN)){
+    y-=5;
+    YSkew(0,y);
+  }
 }
 
 int main(void){

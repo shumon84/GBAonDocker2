@@ -7,6 +7,10 @@
 
 /* オブジェクト番号numのスプライトを指すポインタ */
 #define SP(num) ((volatile Sprite*)(OAM+num))
+/* オブジェクト番号numのスプライトを指すポインタ(アフィン変換使用時) */
+#define ASP(num) ((volatile AffineSprite*)(OAM+num))
+/* アフィンパラメータ番号numのアフィンパラメータを指すポインタ */
+#define AP(num) ((volatile OBJAFFINE*)(OAM+num))
 
 enum SPRITE_SIZE{
   Size_8,
@@ -24,7 +28,7 @@ typedef struct SPRITE{
   /* Attribute 0 */
   u16 Y:8;                      // Y座標
   u16 RotationScaling:1;        // 回転/拡縮フラグ
-  u16 DoubleSize:1;             // ダブルサイズフラグ
+  u16 Disable:1;                // 無効化フラグ
   u16 Mode:2;                   // オブジェクトモード
   u16 Mosaic:1;                 // モザイクフラグ
   u16 ColorMode:1;              // カラーモード
@@ -47,7 +51,7 @@ typedef struct AFFINE_SPRITE{
   /* Attribute 0 */
   u16 Y:8;                      // Y座標
   u16 RotationScaling:1;        // 回転/拡縮フラグ
-  u16 Disable:1;                // 無効化フラグ
+  u16 DoubleSize:1;             // ダブルサイズフラグ
   u16 Mode:2;                   // オブジェクトモード
   u16 Mosaic:1;                 // モザイクフラグ
   u16 ColorMode:1;              // カラーモード
@@ -80,12 +84,18 @@ u32 SpriteGetHeight(u32 num);
 u32 SpriteIsVisibleX(u32 num);
 u32 SpriteIsVisibleY(u32 num);
 u32 SpriteIsVisible(u32 num);
+void SpriteShow(u32 num);
+void SpriteHide(u32 num);
+void SpriteToggle(u32 num);
+void SpriteEnableRotationScaling(u32 num,u32 affnum);
+void SpriteDisableRotationScaling(u32 num);
 void SpriteEnableDoubleSize(u32 num);
 void SpriteDisableDoubleSize(u32 num);
-void SpriteEnableRotationScaling(u32 num);
-void SpriteDisableRotationScaling(u32 num);
+void SpriteSetAffine(u32 num,u32 affnum);
 void SpriteRotationScalingInit(u32 num);
 void SpriteRotationScaling(u32 num,s16 xScale,s16 yScale,u16 angle);
 void SpriteRotation(u32 num,u16 angle);
 void SpriteScaling(u32 num,s16 xScale,s16 yScale);
+void SpriteXSkew(u32 num,u16 angle);
+void SpriteYSkew(u32 num,u16 angle);
 #endif

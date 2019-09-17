@@ -3,7 +3,8 @@
 #include"gba.h"
 #include"sprite.h"
 
-void affineMerge(u32 num,ObjAffineDest *aff);
+void AffineMerge(u32 num,ObjAffineDest *aff);
+u32 Tan(u16 angle);
 
 /**
  * @brief スプライトの初期化
@@ -137,18 +138,18 @@ u32 SpriteGetWidth(u32 num){
   u32 width=0;
 
   switch(form){
-    case Sprite_8x8   :
-    case Sprite_8x16  :
-    case Sprite_8x32  : width=8; break;
-    case Sprite_16x8  :
-    case Sprite_16x16 :
-    case Sprite_16x32 : width=16; break;
-    case Sprite_32x8  :
-    case Sprite_32x16 :
-    case Sprite_32x32 :
-    case Sprite_32x64 : width=32; break;
-    case Sprite_64x32 :
-    case Sprite_64x64 : width=64; break;
+  case Sprite_8x8   :
+  case Sprite_8x16  :
+  case Sprite_8x32  : width=8; break;
+  case Sprite_16x8  :
+  case Sprite_16x16 :
+  case Sprite_16x32 : width=16; break;
+  case Sprite_32x8  :
+  case Sprite_32x16 :
+  case Sprite_32x32 :
+  case Sprite_32x64 : width=32; break;
+  case Sprite_64x32 :
+  case Sprite_64x64 : width=64; break;
   }
 
   return width;
@@ -164,18 +165,18 @@ u32 SpriteGetHeight(u32 num){
   u32 height=0;
 
   switch(form){
-    case Sprite_8x8   :
-    case Sprite_16x8  :
-    case Sprite_32x8  : height=8; break;
-    case Sprite_8x16  :
-    case Sprite_16x16 :
-    case Sprite_32x16 : height=16; break;
-    case Sprite_8x32  :
-    case Sprite_16x32 :
-    case Sprite_32x32 :
-    case Sprite_64x32 : height=32; break;
-    case Sprite_32x64 :
-    case Sprite_64x64 : height=64; break;
+  case Sprite_8x8   :
+  case Sprite_16x8  :
+  case Sprite_32x8  : height=8; break;
+  case Sprite_8x16  :
+  case Sprite_16x16 :
+  case Sprite_32x16 : height=16; break;
+  case Sprite_8x32  :
+  case Sprite_16x32 :
+  case Sprite_32x32 :
+  case Sprite_64x32 : height=32; break;
+  case Sprite_32x64 :
+  case Sprite_64x64 : height=64; break;
   }
 
   return height;
@@ -209,28 +210,38 @@ u32 SpriteIsVisible(u32 num){
 }
 
 /**
- * @brief 倍加表示を許可する
+ * @brief スプライトを表示する
  * @param[in] num オブジェクト番号
  */
-void SpriteEnableDoubleSize(u32 num){
-  SP(num)->DoubleSize=1;
+void SpriteShow(u32 num){
+  SP(num)->Disable=0;
 }
 
 /**
- * @brief 倍加表示を許可しない
+ * @brief スプライトを非表示にする
  * @param[in] num オブジェクト番号
  */
-void SpriteDisableDoubleSize(u32 num){
-  SP(num)->DoubleSize=0;
+void SpriteHide(u32 num){
+  SP(num)->Disable=1;
+}
+
+/**
+ * @brief スプライトの表示と非表示を切り替える
+ * @param[in] num オブジェクト番号
+ */
+void SpriteToggle(u32 num){
+  SP(num)->Disable^=1;		/* Disableのビットを反転 */
 }
 
 /**
  * @brief 回転格縮を許可する
  * @param[in] num オブジェクト番号
+ * @param[in] affnum アフィンパラメータ番号
  */
-void SpriteEnableRotationScaling(u32 num){
-	SP(num)->RotationScaling=1;
-	SpriteRotationScalingInit(num);
+void SpriteEnableRotationScaling(u32 num,u32 affnum){
+  ASP(num)->RotationScaling=1;
+  SpriteSetAffine(num,affnum);
+  SpriteRotationScalingInit(num);
 }
 
 /**
@@ -238,7 +249,32 @@ void SpriteEnableRotationScaling(u32 num){
  * @param[in] num オブジェクト番号
  */
 void SpriteDisableRotationScaling(u32 num){
-	SP(num)->RotationScaling=0;
+  ASP(num)->RotationScaling=0;
+}
+
+/**
+ * @brief 倍加表示を許可する
+ * @param[in] num オブジェクト番号
+ */
+void SpriteEnableDoubleSize(u32 num){
+  ASP(num)->DoubleSize=1;
+}
+
+/**
+ * @brief 倍加表示を許可しない
+ * @param[in] num オブジェクト番号
+ */
+void SpriteDisableDoubleSize(u32 num){
+  ASP(num)->DoubleSize=0;
+}
+
+/**
+ * @brief アフィンパラメータ番号をセットする
+ * @param[in] num オブジェクト番号
+ * @param[in] affnum アフィンパラメータ番号
+ */
+void SpriteSetAffine(u32 num,u32 affnum){
+  ASP(num)->Affine=affnum;
 }
 
 /**
@@ -246,11 +282,11 @@ void SpriteDisableRotationScaling(u32 num){
  * @param[in] num オブジェクト番号
  */
 void SpriteRotationScalingInit(u32 num){
-	OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
-	rot->pa=256;
-	rot->pb=0;
-	rot->pc=0;
-	rot->pd=256;
+  u32 aff=ASP(num)->Affine;
+  AP(aff)->pa=256;
+  AP(aff)->pb=0;
+  AP(aff)->pc=0;
+  AP(aff)->pd=256;
 }
 
 /**
@@ -261,15 +297,14 @@ void SpriteRotationScalingInit(u32 num){
  * @param[in] angle 反時計回りに回転させる角度(度数法)
  */
 void SpriteRotationScaling(u32 num,s16 xScale,s16 yScale,u16 angle){
-	ObjAffineSource src={
-											 Div(25600,xScale), // ((xScale/100)^-1)<<8
-											 Div(25600,yScale), // ((yScale/100)^-1)<<8
-											 angle*180};        // angle<<8*(180<<8/0xFFFF)
-	ObjAffineDest dst={};
-	ObjAffineSet(&src,&dst,1,2);
-	affineMerge(num,&dst);
+  ObjAffineSource src={
+		       Div(25600,xScale), // ((xScale/100)^-1)<<8
+		       Div(25600,yScale), // ((yScale/100)^-1)<<8
+		       angle*180};        // angle<<8*(180<<8/0xFFFF)
+  ObjAffineDest dst={};
+  ObjAffineSet(&src,&dst,1,2);
+  AffineMerge(num,&dst);
 }
-
 
 /**
  * @brief オブジェクトを回転
@@ -277,9 +312,8 @@ void SpriteRotationScaling(u32 num,s16 xScale,s16 yScale,u16 angle){
  * @param[in] angle 反時計回りに回転させる角度(度数法)
  */
 void SpriteRotation(u32 num,u16 angle){
-	SpriteRotationScaling(num,100,100,angle);
+  SpriteRotationScaling(num,100,100,angle);
 }
-
 
 /**
  * @brief オブジェクトを拡縮
@@ -288,27 +322,72 @@ void SpriteRotation(u32 num,u16 angle){
  * @param[in] yScale Y軸方向の拡大比(百分率)
  */
 void SpriteScaling(u32 num,s16 xScale,s16 yScale){
-	SpriteRotationScaling(num,xScale,yScale,0);
+  SpriteRotationScaling(num,xScale,yScale,0);
+}
+
+/**
+ * @brief オブジェクトを水平剪断
+ * @param[in] num オブジェクト番号
+ * @param[in] angle 剪断させる角度(度数法)
+ */
+void SpriteXSkew(u32 num,u16 angle){
+  u32 tan=Tan(angle);
+  ObjAffineDest dst={};
+  dst.pa=256;
+  dst.pb=tan;
+  dst.pc=0;
+  dst.pd=256;
+  AffineMerge(num,&dst);
+}
+
+/**
+ * @brief オブジェクトを垂直剪断
+ * @param[in] num オブジェクト番号
+ * @param[in] angle 剪断させる角度(度数法)
+ */
+void SpriteYSkew(u32 num,u16 angle){
+  u32 tan=Tan(angle);
+  ObjAffineDest dst={};
+  dst.pa=256;
+  dst.pb=0;
+  dst.pc=tan;
+  dst.pd=256;
+  AffineMerge(num,&dst);
+}
+
+/**
+ * @brief 正接(tan)を求める
+ * @param[in] angle 求めたい角度
+ */
+u32 Tan(u16 angle){
+  ObjAffineSource src={
+		       256,
+		       256,
+		       angle*180}; // angle<<8*(180<<8/0xFFFF)
+  ObjAffineDest dst={};
+  ObjAffineSet(&src,&dst,1,2);
+  u32 tan=Div(dst.pb<<8,dst.pa);
+  return tan;
 }
 
 /**
  * @brief オブジェクトの回転格縮を合成
  * @param[in] num オブジェクト番号
- * @param[in] aff 合成するアフィン
+ * @param[in] ope 合成するアフィン
  * 以下の行列積を計算します
- * | rot.pa rot.pc 0 |   | aff.pa aff.pc 0 |
- + | rot.pb rot.pd 0 | x | aff.pb aff.pd 0 |
+ * | aff.pa aff.pc 0 |   | ope.pa ope.pc 0 |
+ + | aff.pb aff.pd 0 | x | ope.pb ope.pd 0 |
  * |      0      0 1 |   |      0      0 1 |
  */
-void affineMerge(u32 num,ObjAffineDest *aff){
-	OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
-	u32 pa=rot->pa;
-	u32 pb=rot->pb;
-	u32 pc=rot->pc;
-	u32 pd=rot->pd;
+void AffineMerge(u32 num,ObjAffineDest *ope){
+  u32 aff=ASP(num)->Affine;
+  u32 pa=AP(aff)->pa;
+  u32 pb=AP(aff)->pb;
+  u32 pc=AP(aff)->pc;
+  u32 pd=AP(aff)->pd;
 
-	rot->pa=(pa*aff->pa+pc*aff->pb)>>8;
-	rot->pb=(pb*aff->pa+pd*aff->pb)>>8;
-	rot->pc=(pa*aff->pc+pc*aff->pd)>>8;
-	rot->pd=(pb*aff->pc+pd*aff->pd)>>8;
+  AP(aff)->pa=(pa*ope->pa+pc*ope->pb)>>8;
+  AP(aff)->pb=(pb*ope->pa+pd*ope->pb)>>8;
+  AP(aff)->pc=(pa*ope->pc+pc*ope->pd)>>8;
+  AP(aff)->pd=(pb*ope->pc+pd*ope->pd)>>8;
 }

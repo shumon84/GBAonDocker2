@@ -41,11 +41,11 @@ void Init(){
 }
 
 void Scaling(u32 num,u16 Sx,u16 Sy){
-	OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
-	rot->pa=Sx;
-	rot->pb=0;
-	rot->pc=0;
-	rot->pd=Sy;
+  OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
+  rot->pa=Sx;
+  rot->pb=0;
+  rot->pc=0;
+  rot->pd=Sy;
 }
 
 s16 x=256;
@@ -53,24 +53,24 @@ s16 y=256;
 void Update(){
   InputUpdate();
 
-	if(InputIsKeyRepeat(KEY_LEFT)){
-		x+=10;
-	}
-	if(InputIsKeyRepeat(KEY_RIGHT)){
-		x-=10;
-	}
-	if(InputIsKeyRepeat(KEY_UP)){
-		y+=10;
-	}
-	if(InputIsKeyRepeat(KEY_DOWN)){
-		y-=10;
-	}
+  if(InputIsKeyRepeat(KEY_LEFT)){
+    x+=10;
+  }
+  if(InputIsKeyRepeat(KEY_RIGHT)){
+    x-=10;
+  }
+  if(InputIsKeyRepeat(KEY_UP)){
+    y+=10;
+  }
+  if(InputIsKeyRepeat(KEY_DOWN)){
+    y-=10;
+  }
 
-	Scaling(0,x,y);
+  Scaling(0,x,y);
 
   TextSetCursor(0,0);
   TextPrintf("x=%.3f           \n"
-						 "y=%.3f           \n",
+	     "y=%.3f           \n",
 	     x/256.0,y/256.0);
 }
 
