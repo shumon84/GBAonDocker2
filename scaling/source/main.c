@@ -14,13 +14,13 @@ void WaitForVsync(){
 void Init(){
   /* テキストシステムの設定 */
   TextInit();
-  //TextHideBackGround();
-  TextSetCursor(7,6);
-  TextPut("DON'T STOP SUSHI!");
+
+  TextSetCursor(10,6);
+  TextPut("BIG SUSHI!");
   TextSetCursor(3,15);
-  TextPut("A BUTTON->SPIN SPIN SPIN");
+  TextPut("UP,DOWN    -> Vertical");
   TextSetCursor(3,16);
-  TextPut("B BUTTON->SPEED UP");
+  TextPut("LEFT,RIGHT -> Horizontal");
 
   /* OAMとパレットの設定 */
   u16* oam=OBJ_BASE_ADR;
@@ -37,15 +37,15 @@ void Init(){
   SpriteInit();
   SpriteSetUp(0,0,Sprite_16x16,112,72);
   SpriteEnableDoubleSize(0);
-  SpriteEnableRotationScaling(0);
+  SpriteEnableRotationScaling(0,0);
 }
 
 void Scaling(u32 num,u16 Sx,u16 Sy){
-  OBJAFFINE* rot = (OBJAFFINE*)OAM + num;
-  rot->pa=Sx;
-  rot->pb=0;
-  rot->pc=0;
-  rot->pd=Sy;
+  OBJAFFINE* aff = (OBJAFFINE*)OAM + num;
+  aff->pa=Sx;
+  aff->pb=0;
+  aff->pc=0;
+  aff->pd=Sy;
 }
 
 s16 x=256;

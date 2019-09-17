@@ -14,7 +14,7 @@ void WaitForVsync(){
 void Init(){
   /* テキストシステムの設定 */
   TextInit();
-  //TextHideBackGround();
+
   TextSetCursor(7,6);
   TextPut("DON'T STOP SUSHI!");
   TextSetCursor(3,15);
@@ -69,8 +69,8 @@ void Update(){
 
   TextSetCursor(0,0);
   TextPrintf("angle=%d\n"
-	     "spped=%d\n",
-	     angle,speed);
+             "spped=%d\n",
+             angle,speed);
 }
 
 int main(void){
